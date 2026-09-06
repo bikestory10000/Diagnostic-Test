@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>민쌤영어 논리완성 진단 테스트 Ver.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBFAF7; --ink:#1E2833; --ink-soft:#5A6673; --rule:#D9D5CC;
+    --step:#2F5D62; --step-soft:#E3ECEC; --mark:#B8452E; --ok:#3B7D4F;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Noto Sans KR",sans-serif;font-size:16px;line-height:1.6}
+  .en{font-family:"Noto Serif","Noto Sans KR",serif;font-size:1.05em;line-height:1.75}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 20px 120px}
+  header h1{font-size:1.5rem;font-weight:700;margin:0 0 4px}
+  header p{margin:0;color:var(--ink-soft)}
+  .brand{font-size:.9rem;color:var(--step);font-weight:500;margin-bottom:10px}
+
+  /* 시작 화면 */
+  .gate{margin-top:28px;border-top:2px solid var(--ink);padding-top:20px}
+  .gate label{display:block;font-weight:500;margin:14px 0 4px}
+  .gate input,.gate select{width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:6px;font:inherit;background:#fff}
+  .notice{background:var(--step-soft);border-radius:8px;padding:14px 16px;margin:20px 0;font-size:.95rem}
+  .notice li{margin:4px 0}
+  button.primary{background:var(--step);color:#fff;border:0;border-radius:8px;padding:14px 22px;font:inherit;font-weight:700;font-size:1rem;cursor:pointer}
+  button.primary:disabled{opacity:.45;cursor:not-allowed}
+  button.primary:focus-visible,button.ghost:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+  button.ghost{background:transparent;color:var(--step);border:1px solid var(--step);border-radius:8px;padding:12px 18px;font:inherit;font-weight:500;cursor:pointer}
+
+  /* 상단 고정바: 계단 진행 */
+  .bar{position:sticky;top:0;background:var(--paper);border-bottom:1px solid var(--rule);padding:10px 0 8px;z-index:5}
+  .bar-inner{max-width:760px;margin:0 auto;padding:0 20px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .stairs{display:flex;align-items:flex-end;gap:3px;flex:1}
+  .stair{flex:1;background:var(--step-soft);border-radius:2px 2px 0 0;position:relative;transition:background .3s}
+  .stair.done{background:var(--step)}
+  .stair.now{background:var(--step);opacity:.55}
+  .stair span{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:.68rem;color:var(--ink-soft);white-space:nowrap}
+  .timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:1.15rem;min-width:70px;text-align:right}
+  .timer.warn{color:var(--mark)}
+
+  /* 영역 */
+  .area{margin-top:40px}
+  .area h2{font-size:1.15rem;margin:0;padding-bottom:6px;border-bottom:2px solid var(--ink)}
+  .area .guide{color:var(--ink-soft);font-size:.92rem;margin:8px 0 0}
+
+  /* 문항 */
+  .q{padding:22px 0;border-bottom:1px solid var(--rule)}
+  .q .num{font-weight:700;color:var(--step);margin-right:8px}
+  .q .stem{margin:0 0 12px}
+  .q .stem .ask{display:block;margin-top:6px;color:var(--ink-soft);font-size:.92rem;font-family:"Noto Sans KR",sans-serif}
+  u{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px}
+  .opts{list-style:none;margin:0;padding:0}
+  .opts li{margin:4px 0}
+  .opts label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:6px;cursor:pointer}
+  .opts label:hover{background:#fff}
+  .opts input{margin-top:6px;accent-color:var(--step)}
+  .opts input:checked + .txt{font-weight:700}
+  .conf{display:flex;gap:6px;align-items:center;margin-top:10px;font-size:.88rem;color:var(--ink-soft)}
+  .conf .lbl{margin-right:4px}
+  .conf label{border:1px solid var(--rule);border-radius:20px;padding:3px 12px;cursor:pointer;background:#fff}
+  .conf input{display:none}
+  .conf input:checked + span{color:#fff}
+  .conf label:has(input:checked){background:var(--step);border-color:var(--step)}
+  .q.missing{border-left:3px solid var(--mark);padding-left:12px}
+
+  /* 제출 */
+  .submit{margin-top:36px;text-align:center}
+  .submit .status{color:var(--ink-soft);margin-bottom:12px;font-size:.95rem}
+  .result{display:none;margin-top:30px;border-top:2px solid var(--ink);padding-top:20px}
+  .result h2{font-size:1.2rem;margin:0 0 8px}
+  .result textarea{width:100%;min-height:120px;font:inherit;font-size:.9rem;border:1px solid var(--rule);border-radius:6px;padding:10px;background:#fff}
+  .result .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .sent{color:var(--ok);font-weight:500}
+  .fail{color:var(--mark)}
+  .hide{display:none}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media (max-width:480px){.stair span{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">English Lab 민쌤영어 · Stairs to 100</div>
+  <h1>편입영어 논리완성 진단 테스트</h1>
+  <p>Diagnostic Ver.1 · 60문항 · 60분</p>
+</header>
+
+<!-- 시작 화면 -->
+<section class="gate" id="gate">
+  <label for="name">이름</label>
+  <input id="name" placeholder="예) 김민수" autocomplete="off">
+  <div class="notice">
+    <strong>시험 전에 읽어 주세요</strong>
+    <ul>
+      <li>모든 문항은 5지선다입니다. 사전이나 검색은 사용하지 않습니다.</li>
+      <li>문항마다 <b>자신 있음 / 반쯤 / 찍음</b> 중 하나를 꼭 표시합니다. 찍은 문제를 정직하게 표시할수록 진단이 정확해집니다.</li>
+      <li>60분이 지나면 자동으로 제출됩니다. 시간이 부족하면 남은 문항은 비워 두어도 됩니다.</li>
+      <li>제출 후 화면에 나오는 <b>결과 코드</b>를 복사해서 민쌤에게 보내 주세요(자동 전송이 되어도 한 번 더 보내면 확실합니다).</li>
+    </ul>
+  </div>
+  <button class="primary" id="startBtn" disabled>시험 시작</button>
+</section>
+
+<!-- 시험 본문 -->
+<div id="exam" class="hide">
+  <div class="bar">
+    <div class="bar-inner">
+      <div class="stairs" id="stairs"></div>
+      <div class="timer" id="timer">60:00</div>
+    </div>
+  </div>
+  <div id="areas"></div>
+  <div class="submit">
+    <div class="status" id="status"></div>
+    <button class="primary" id="submitBtn">답안 제출</button>
+  </div>
+</div>
+
+<!-- 결과 -->
+<section class="result" id="result">
+  <h2>제출되었습니다</h2>
+  <p>아래 결과 코드를 복사해서 민쌤에게 보내 주세요.</p>
+  <textarea id="code" readonly></textarea>
+  <div class="row">
+    <button class="primary" id="copyBtn">결과 코드 복사</button>
+    <span id="sendState"></span>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* =========================================================
+   설정 — 데이터를 서버(구글 시트)에 남기려면 아래에
+   Apps Script 웹앱 URL을 넣으세요. 비워 두면 결과 코드만 표시됩니다.
+   ========================================================= */
+const ENDPOINT = "";
+const LIMIT_SEC = 60 * 60;
+
+/* 영역 정의 */
+const AREAS = [
+  {code:"V1", name:"영역 1. 고등기초어휘", guide:"빈칸에 들어갈 가장 알맞은 단어를 고르세요.", min:5},
+  {code:"S1", name:"영역 2. 고등기초구문", guide:"문장 구조에 관한 물음에 답하세요.", min:7},
+  {code:"V2", name:"영역 3. 편입어휘", guide:"빈칸에 알맞은 단어, 또는 밑줄 친 단어와 뜻이 가장 가까운 것을 고르세요.", min:7},
+  {code:"S2", name:"영역 4. 편입중급구문", guide:"문장 구조에 관한 물음에 답하세요.", min:9},
+  {code:"T",  name:"영역 5. 해석", guide:"문장의 의미와 가장 가까운 것을 고르세요.", min:8},
+  {code:"G",  name:"영역 6. 문법", guide:"어법상 알맞은 것, 또는 문법 단서가 알려주는 정보를 고르세요.", min:7},
+  {code:"L",  name:"영역 7. 논리추론", guide:"글의 흐름상 빈칸에 가장 알맞은 것을 고르세요.", min:17},
+];
+
+/* 문항 데이터 — 정답은 포함하지 않음(강사용 별도 파일) */
+const ITEMS = [
+/* V1 */
+{a:"V1",en:1,s:"The museum was so ______ that we could hardly move.",o:["crowded", "distant", "quiet", "ancient", "empty"]},
+{a:"V1",en:1,s:"Because of the storm, all flights were ______ until morning.",o:["welcomed", "landed", "delayed", "cleaned", "arrived"]},
+{a:"V1",en:1,s:"Regular exercise can ______ the risk of heart disease.",o:["reduce", "repeat", "raise", "describe", "ignore"]},
+{a:"V1",en:1,s:"It is ______ to wear a seatbelt while driving.",o:["impossible", "rare", "noisy", "harmful", "necessary"]},
+{a:"V1",en:1,s:"The two brothers look so ______ that people often mistake one for the other.",o:["nervous", "similar", "curious", "honest", "different"]},
+{a:"V1",en:1,s:"He ______ his mistake and apologized to everyone.",o:["forgot", "hid", "admitted", "avoided", "denied"]},
+{a:"V1",en:1,s:"The teacher's explanation was too ______ for the students to follow.",o:["simple", "complicated", "clear", "easy", "familiar"]},
+{a:"V1",en:1,s:"His ______ answer left us unsure whether he would come.",o:["cheerful", "final", "direct", "vague", "honest"]},
+/* S1 */
+{a:"S1",en:1,s:"The boy <u>playing the piano</u> is my cousin.",ask:"밑줄 부분의 역할은?",o:["명사(boy)를 수식하는 형용사구", "주어", "동사를 수식하는 부사구", "목적어", "보어"]},
+{a:"S1",en:1,s:"I want to know <u>what she bought</u>.",ask:"밑줄 부분의 역할은?",o:["know의 목적어인 명사절", "she를 수식하는 형용사절", "the thing을 수식하는 관계절", "시간을 나타내는 부사절", "독립된 의문문"]},
+{a:"S1",en:1,s:"Reading books makes us wise.",ask:"이 문장의 주어는?",o:["wise", "books", "us", "Reading books", "makes"]},
+{a:"S1",en:1,s:"The man who lives next door has three dogs.",ask:"이 문장의 본동사는?",o:["next", "lives", "lives와 has 둘 다", "door", "has"]},
+{a:"S1",en:1,s:"She found the book <u>difficult</u> to understand.",ask:"밑줄 부분의 역할은?",o:["주격 보어", "부사", "목적격 보어", "명사 수식", "목적어"]},
+{a:"S1",en:1,s:"<u>Tired from the long trip</u>, he went to bed early.",ask:"밑줄 부분은?",o:["he를 수식하는 관계절", "이유를 나타내는 분사구문", "문장의 주어", "명령문", "went의 목적어"]},
+{a:"S1",en:1,s:"The reason he was late was <u>that the bus broke down</u>.",ask:"밑줄 부분의 역할은?",o:["문장의 주어", "reason을 수식하는 관계절", "주격 보어(명사절)", "was의 목적어", "이유를 나타내는 부사절"]},
+{a:"S1",en:1,s:"Only after the meeting ended did I realize my mistake.",ask:"이 문장의 주어와 본동사는?",o:["meeting – did", "I – did realize", "meeting – ended", "mistake – realize", "I – ended"]},
+/* V2 */
+{a:"V2",en:1,s:"The new evidence was enough to ______ the suspect of all charges.",o:["convict", "exonerate", "indict", "prosecute", "implicate"]},
+{a:"V2",en:1,s:"The professor's lecture was so ______ that half the class fell asleep.",o:["concise", "coherent", "tedious", "riveting", "lucid"]},
+{a:"V2",en:1,s:"Her ______ remarks offended several guests at the dinner.",o:["tactful", "cordial", "banal", "caustic", "bland"]},
+{a:"V2",en:1,s:"The government tried to ______ the spread of the disease by closing schools.",o:["exacerbate", "foster", "condone", "disseminate", "curb"]},
+{a:"V2",en:1,s:"Despite his ______ manner, he was actually deeply insecure.",o:["humble", "meek", "diffident", "timid", "haughty"]},
+{a:"V2",en:1,s:"The two theories are not mutually exclusive; in fact, they are quite ______.",o:["ambiguous", "negligible", "compatible", "obsolete", "contradictory"]},
+{a:"V2",en:1,s:"The committee reached a <u>unanimous</u> decision.",ask:"밑줄 친 단어와 뜻이 가장 가까운 것은?",o:["hasty", "agreed by all", "partial", "provisional", "dubious"]},
+{a:"V2",en:1,s:"The politician's speech was full of <u>platitudes</u>.",ask:"밑줄 친 단어와 뜻이 가장 가까운 것은?",o:["clichés", "insults", "statistics", "promises", "anecdotes"]},
+{a:"V2",en:1,s:"His <u>ephemeral</u> fame faded within a year.",ask:"밑줄 친 단어와 뜻이 가장 가까운 것은?",o:["deserved", "enormous", "notorious", "fleeting", "enduring"]},
+{a:"V2",en:1,s:"The lawyer's argument was <u>specious</u>.",ask:"밑줄 친 단어와 뜻이 가장 가까운 것은?",o:["deceptively attractive", "rigorous", "belligerent", "persuasive", "verbose"]},
+/* S2 */
+{a:"S2",en:1,s:"The results of the study, which was conducted over a period of ten years, suggest that early education plays a crucial role in later academic success.",ask:"이 문장 전체의 주어와 본동사는?",o:["study – suggest", "results – suggest", "education – plays", "study – was conducted", "results – plays"]},
+{a:"S2",en:1,s:"<u>What makes this problem particularly difficult to solve</u> is that the people most affected by it have the least power to change it.",ask:"밑줄 부분의 역할은?",o:["주격 보어", "조건을 나타내는 부사절", "문장의 주어(명사절)", "problem을 수식하는 관계절", "is의 목적어"]},
+{a:"S2",en:1,s:"Scientists have long suspected, <u>though they were unable to prove it until recently</u>, that certain birds navigate using the Earth's magnetic field.",ask:"밑줄 부분은?",o:["삽입된 양보 부사절", "suspected의 목적어인 명사절", "분사구문", "Scientists를 수식하는 관계절", "that절과 동격인 절"]},
+{a:"S2",en:1,s:"Not until the factory had closed did the residents realize how much of the town's economy had depended on it.",ask:"이 문장의 주어와 본동사는?",o:["economy – had depended", "factory – had closed", "town – depended", "residents – had closed", "residents – did realize"]},
+{a:"S2",en:1,s:"The theory, <u>first proposed in the 1950s and largely ignored for decades</u>, has recently attracted renewed attention from researchers studying climate patterns.",ask:"밑줄 부분은?",o:["attracted의 목적어인 명사절", "문장의 본동사", "의미상 주어가 다른 독립분사구문", "theory를 수식하는 삽입 분사구", "시간을 나타내는 부사절"]},
+{a:"S2",en:1,s:"Whether the policy will succeed depends largely on how willing ordinary citizens are to change habits <u>they have maintained for generations</u>.",ask:"밑줄 부분은?",o:["문장의 주절", "citizens와 동격인 절", "habits를 수식하는 관계절(목적격 관계사 생략)", "이유를 나타내는 부사절", "on의 목적어인 명사절"]},
+{a:"S2",en:1,s:"So rapid was the decline in the bird population that researchers, <u>many of whom had studied the species for decades</u>, struggled to identify a single cause.",ask:"밑줄 부분이 설명하는 대상은?",o:["cause", "researchers", "population", "species", "decline"]},
+{a:"S2",en:1,s:"It was the failure of the negotiators to recognize the cultural significance of the land, rather than any disagreement over its economic value, that ultimately doomed the talks.",ask:"이 문장에서 강조되고 있는 것은?",o:["the failure of the negotiators to recognize the cultural significance of the land", "the negotiators", "the land", "any disagreement over its economic value", "the talks"]},
+/* T */
+{a:"T",en:1,s:"Not until the bridge had collapsed did officials admit that the warnings of engineers had been ignored for years.",ask:"문장의 의미와 가장 가까운 것은?",o:["다리가 붕괴되기 전까지 기술자들은 계속 경고를 보냈다.", "다리가 붕괴되고 나서야 관리들은 기술자들의 경고가 수년간 무시되어 왔음을 인정했다.", "기술자들은 수년간 관리들의 경고를 무시해 왔다.", "다리가 붕괴되기 전에 관리들은 기술자들의 경고를 인정했다.", "다리가 붕괴되었지만 관리들은 경고가 무시되었다는 것을 인정하지 않았다."]},
+{a:"T",en:1,s:"Whether the treatment works depends less on the drug itself than on how consistently patients follow the instructions they are given.",ask:"문장의 의미와 가장 가까운 것은?",o:["치료 효과는 환자가 지시를 따르는지보다 약 자체에 더 크게 달려 있다.", "치료 효과는 의사가 지시를 얼마나 일관되게 내리는지에 달려 있다.", "약이 효과가 있어야 환자들이 지시를 일관되게 따른다.", "치료 효과는 약 자체보다 환자가 받은 지시를 얼마나 꾸준히 따르는지에 더 크게 달려 있다.", "치료 효과는 약이나 환자의 태도와는 무관하다."]},
+{a:"T",en:1,s:"It was the company's refusal to acknowledge the defect, rather than the defect itself, that destroyed consumers' trust.",ask:"문장의 의미와 가장 가까운 것은?",o:["소비자의 신뢰를 무너뜨린 것은 결함 자체가 아니라 결함을 인정하지 않은 회사의 태도였다.", "결함 그 자체가 소비자의 신뢰를 무너뜨렸다.", "소비자들이 결함을 인정하지 않아 회사는 신뢰를 잃었다.", "회사가 결함을 인정하자 소비자의 신뢰가 무너졌다.", "회사는 결함을 인정했지만 신뢰는 회복되지 않았다."]},
+{a:"T",en:1,s:"Far from discouraging students, the strict grading policy motivated many of them to work harder than ever.",ask:"문장의 의미와 가장 가까운 것은?",o:["엄격한 채점 정책은 학생들을 낙담시키기는커녕 오히려 더 열심히 공부하도록 동기를 부여했다.", "학생들은 엄격한 채점 정책을 피해 멀리 떠났다.", "엄격한 채점 정책에 일부 학생만 낙담했다.", "엄격한 채점 정책은 많은 학생들을 낙담시켰다.", "채점 정책이 엄격하지 않아서 학생들은 동기를 얻지 못했다."]},
+{a:"T",en:1,s:"Hardly anyone who attended the lecture left without questioning at least one of the speaker's assumptions.",ask:"문장의 의미와 가장 가까운 것은?",o:["강연 참석자 중 연사의 전제에 의문을 품은 사람은 거의 없었다.", "강연을 끝까지 들은 사람은 거의 없었다.", "강연에 참석한 사람들은 거의 모두 연사의 전제 중 적어도 하나에는 의문을 품은 채 떠났다.", "참석자들은 질문 하나도 하지 않고 강연장을 떠났다.", "연사는 참석자들의 질문에 거의 답하지 않았다."]},
+{a:"T",en:1,s:"The more confident people are in their judgments, the less likely they are to notice the evidence that contradicts them.",ask:"문장의 의미와 가장 가까운 것은?",o:["자신감 있는 사람들은 반대 증거를 의도적으로 없애려 한다.", "자기 판단에 자신이 있을수록 그것에 반하는 증거를 더 잘 알아차린다.", "증거가 많을수록 사람들은 자기 판단에 자신감을 갖게 된다.", "자기 판단에 자신이 없는 사람들은 증거를 의심하는 경향이 있다.", "자기 판단에 자신이 있을수록 그것과 상충하는 증거를 알아차릴 가능성이 낮아진다."]},
+/* G */
+{a:"G",en:1,s:"The book ______ I borrowed from the library was more interesting than I expected.",ask:"빈칸에 알맞은 것은?",o:["whom", "which", "who", "what", "whose"]},
+{a:"G",en:1,s:"Dr. Kim, <u>whose research on sleep has been widely cited</u>, argues that ______.",ask:"밑줄 친 관계절이 알려주는 정보는?",o:["Dr. Kim의 수면 연구가 널리 인용된다.", "Dr. Kim이 다른 연구를 많이 인용한다.", "수면 연구자들이 Dr. Kim의 주장을 반박한다.", "Dr. Kim이 수면 부족에 시달린다.", "Dr. Kim이 수면 연구를 비판한다."]},
+{a:"G",en:1,s:"The children, ______ by the loud noise, ran out of the room.",ask:"빈칸에 알맞은 것은?",o:["frighten", "to frighten", "frightened", "frightening", "having frightened"]},
+{a:"G",en:1,s:"<u>Having failed the exam twice</u>, he was surprised when he passed it easily on the third attempt.",ask:"밑줄 친 분사구문으로 볼 때, 그가 놀란 이유는?",o:["세 번째 시험이 특히 어려웠기 때문", "시험을 두 번밖에 보지 않았기 때문", "시험이 갑자기 쉬워졌기 때문", "이미 두 번 합격한 경험이 있었기 때문", "앞선 두 번의 실패 때문에 합격을 기대하지 않았기 때문"]},
+{a:"G",en:1,s:"He is no more a doctor than I am.",ask:"문장의 의미와 가장 가까운 것은?",o:["그는 나만큼 훌륭한 의사는 아니다.", "그는 나와 마찬가지로 의사가 아니다.", "그는 나보다 의사 경력이 짧다.", "그도 나도 의사이다.", "그는 의사이지만 나는 의사가 아니다."]},
+{a:"G",en:1,s:"______ the evidence against him was overwhelming, the jury found him not guilty.",ask:"빈칸에 알맞은 것은?",o:["Although", "Since", "So that", "Because", "Unless"]},
+{a:"G",en:1,s:"Not all the students who took the test passed it.",ask:"문장의 의미와 가장 가까운 것은?",o:["학생 전원이 시험을 보지 않았다.", "시험을 본 학생은 모두 합격했다.", "시험을 본 학생 중 일부는 불합격했다.", "시험을 보지 않은 학생은 합격하지 못했다.", "시험을 본 학생은 모두 불합격했다."]},
+{a:"G",en:1,s:"Although the manager praised the young intern for his proposal, <u>she</u> admitted that <u>it</u> would take months to implement.",ask:"밑줄 친 she와 it이 각각 가리키는 것은?",o:["she = manager, it = intern", "she = manager, it = praise", "she = intern, it = months", "she = manager, it = proposal", "she = intern, it = proposal"]},
+/* L */
+{a:"L",en:1,s:"Many people believe that talent alone determines success. But the lives of great musicians tell a different story: almost all of them spent years practicing before anyone noticed them. In other words, what looks like a natural gift is usually the result of ______.",o:["long effort", "luck", "early fame", "good teachers", "rich parents"]},
+{a:"L",en:1,s:"The report avoids any firm conclusion. Its authors present data from both sides but refuse to say which interpretation they favor; the document is, in short, deliberately ______.",o:["candid", "polemical", "dogmatic", "equivocal", "exhaustive"]},
+{a:"L",en:1,s:"Her friends expected her to be angry after losing the contest. Instead, she seemed almost relieved, as if the loss had freed her from something she had never really wanted. Winning, it turned out, had been ______ goal all along.",o:["someone else's", "her own", "an easy", "a new", "a secret"]},
+{a:"L",en:1,s:"While his early novels were praised for their ______, critics complained that his later works were bloated and self-indulgent.",o:["economy", "ambiguity", "pessimism", "verbosity", "length"]},
+{a:"L",en:1,s:"The village had one well, and everyone used it. When the well dried up, the people did not fight over water as outsiders had predicted. Years of sharing a single source had taught them to ______, and that habit did not disappear with the water.",o:["trust strangers", "leave home", "save money", "take turns", "dig deeper"]},
+{a:"L",en:1,s:"Because the soil in the region is extremely ______, farmers must add large amounts of fertilizer every year just to produce a modest harvest.",o:["fertile", "abundant", "moist", "arable", "barren"]},
+{a:"L",en:1,s:"Small changes in wording can have big effects. When a sign in a hotel bathroom said that most guests reused their towels, far more guests did so than when the sign simply asked them to help the environment. People, it seems, are more moved by ______ than by ______.",o:["what is right – what others do", "pictures – words", "rules – examples", "money – words", "what others do – what is right"]},
+{a:"L",en:1,s:"The documentary is full of ______ details: the exact number of buttons on the general's coat, the brand of ink he used, the weather on the morning of the battle.",o:["spurious", "inconsequential", "ambiguous", "contentious", "pivotal"]},
+{a:"L",en:1,s:"It is not that the plan is bad; it is that no one has explained why it is good. Until someone does, the public's lack of support should be read not as rejection but as ______.",o:["boredom", "approval", "doubt", "anger", "fear"]},
+{a:"L",en:1,s:"Far from being ______, the new regulations are so vaguely worded that even lawyers disagree about what they require.",o:["controversial", "unambiguous", "obsolete", "lenient", "comprehensive"]},
+{a:"L",en:1,s:"A little fear is useful; it keeps us careful. Too much of it, however, does the opposite: a person who is afraid of every risk ends up taking none, and so learns ______.",o:["carefully", "nothing", "everything", "quickly", "slowly"]},
+{a:"L",en:1,s:"The difference between the two candidates is one of degree rather than kind: both favor reform, but one wants ______ change while the other prefers a more ______ approach.",o:["radical – ambitious", "drastic – revolutionary", "sweeping – gradual", "minor – modest", "gradual – cautious"]},
+];
+
+const CIRCLED = ["①","②","③","④","⑤"];
+const $ = s => document.querySelector(s);
+let startAt = null, tick = null, submitted = false;
+
+/* 시작 버튼 활성화 */
+$("#name").addEventListener("input", () => {
+  $("#startBtn").disabled = !$("#name").value.trim();
+});
+
+/* 렌더링 */
+function render(){
+  const stairs = $("#stairs");
+  AREAS.forEach((ar,i) => {
+    const d = document.createElement("div");
+    d.className = "stair"; d.style.height = (10 + i*4) + "px";
+    d.innerHTML = `<span>${ar.code}</span>`; d.dataset.code = ar.code;
+    stairs.appendChild(d);
+  });
+  const host = $("#areas");
+  let n = 0;
+  AREAS.forEach(ar => {
+    const sec = document.createElement("section"); sec.className = "area"; sec.dataset.code = ar.code;
+    sec.innerHTML = `<h2>${ar.name}</h2><p class="guide">${ar.guide} 권장 시간 ${ar.min}분.</p>`;
+    ITEMS.filter(it => it.a === ar.code).forEach(it => {
+      n++; it.n = n;
+      const q = document.createElement("div"); q.className = "q"; q.id = "q"+n;
+      const ask = it.ask ? `<span class="ask">${it.ask}</span>` : "";
+      q.innerHTML = `
+        <p class="stem"><span class="num">${n}.</span><span class="${it.en?'en':''}">${it.s}</span>${ask}</p>
+        <ul class="opts">${it.o.map((t,i)=>`<li><label><input type="radio" name="a${n}" value="${i+1}"><span class="txt ${/[가-힣]/.test(t)?'':'en'}">${CIRCLED[i]} ${t}</span></label></li>`).join("")}</ul>
+        <div class="conf"><span class="lbl">확신도</span>
+          <label><input type="radio" name="c${n}" value="3"><span>자신 있음</span></label>
+          <label><input type="radio" name="c${n}" value="2"><span>반쯤</span></label>
+          <label><input type="radio" name="c${n}" value="1"><span>찍음</span></label>
+        </div>`;
+      sec.appendChild(q);
+    });
+    host.appendChild(sec);
+  });
+  host.addEventListener("change", updateProgress);
+}
+
+function answered(n){ return document.querySelector(`input[name="a${n}"]:checked`); }
+function conf(n){ const c = document.querySelector(`input[name="c${n}"]:checked`); return c ? c.value : "0"; }
+
+function updateProgress(){
+  let doneCount = 0;
+  AREAS.forEach(ar => {
+    const its = ITEMS.filter(it => it.a === ar.code);
+    const d = its.filter(it => answered(it.n)).length;
+    const el = document.querySelector(`.stair[data-code="${ar.code}"]`);
+    el.className = "stair" + (d === its.length ? " done" : d > 0 ? " now" : "");
+    doneCount += d;
+  });
+  $("#status").textContent = `${doneCount} / ${ITEMS.length} 문항 응답`;
+  try{ localStorage.setItem("diag_v1_draft", JSON.stringify(collect(false))); }catch(e){}
+}
+
+/* 타이머 */
+function startTimer(){
+  startAt = Date.now();
+  tick = setInterval(() => {
+    const left = LIMIT_SEC - Math.floor((Date.now()-startAt)/1000);
+    const t = $("#timer");
+    if (left <= 0){ t.textContent = "00:00"; submit(true); return; }
+    t.textContent = String(Math.floor(left/60)).padStart(2,"0") + ":" + String(left%60).padStart(2,"0");
+    if (left <= 300) t.classList.add("warn");
+  }, 500);
+}
+
+/* 답안 수집 */
+function collect(final){
+  const parts = ITEMS.map(it => {
+    const a = answered(it.n); return `${it.n}:${a ? a.value : 0}(${conf(it.n)})`;
+  });
+  return {
+    name: $("#name").value.trim(),
+    date: new Date().toISOString().slice(0,10),
+    elapsed_min: startAt ? Math.round((Date.now()-startAt)/60000) : 0,
+    version: "Diagnostic Ver.1",
+    answers: parts.join(" "),
+    final: !!final
+  };
+}
+
+function submit(auto){
+  if (submitted) return;
+  if (!auto){
+    const missing = ITEMS.filter(it => !answered(it.n) || conf(it.n) === "0");
+    document.querySelectorAll(".q").forEach(q => q.classList.remove("missing"));
+    if (missing.length){
+      missing.forEach(it => $("#q"+it.n).classList.add("missing"));
+      if (!confirm(`답 또는 확신도가 비어 있는 문항이 ${missing.length}개 있습니다(빨간 표시). 그대로 제출할까요?`)){
+        $("#q"+missing[0].n).scrollIntoView({behavior:"smooth", block:"center"}); return;
+      }
+    }
+  }
+  submitted = true; clearInterval(tick);
+  const data = collect(true);
+  const code = `[민쌤영어 진단 Ver.1]\n이름: ${data.name}\n응시일: ${data.date}\n소요시간: ${data.elapsed_min}분\n답안: ${data.answers}`;
+  $("#code").value = code;
+  $("#exam").classList.add("hide");
+  $("#result").style.display = "block";
+  window.scrollTo({top:0});
+  try{ localStorage.removeItem("diag_v1_draft"); }catch(e){}
+  send(data);
+}
+
+/* 서버 전송 (Apps Script) */
+function send(data){
+  const st = $("#sendState");
+  if (!ENDPOINT){ st.textContent = "코드를 복사해서 보내 주세요."; return; }
+  st.textContent = "전송 중…";
+  fetch(ENDPOINT, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body: JSON.stringify(data)})
+    .then(() => { st.textContent = "자동 전송 완료. 코드도 함께 보내 주세요."; st.className = "sent"; })
+    .catch(() => { st.textContent = "자동 전송에 실패했습니다. 코드를 복사해서 보내 주세요."; st.className = "fail"; });
+}
+
+$("#copyBtn").addEventListener("click", () => {
+  const ta = $("#code"); ta.select();
+  navigator.clipboard?.writeText(ta.value).then(() => { $("#copyBtn").textContent = "복사됨"; });
+});
+
+$("#startBtn").addEventListener("click", () => {
+  $("#gate").classList.add("hide"); $("#exam").classList.remove("hide");
+  startTimer(); updateProgress(); window.scrollTo({top:0});
+});
+$("#submitBtn").addEventListener("click", () => submit(false));
+window.addEventListener("beforeunload", e => { if (startAt && !submitted){ e.preventDefault(); e.returnValue = ""; } });
+
+render();
+</script>
+</body>
+</html>
