@@ -85,7 +85,7 @@
 <header>
   <div class="brand">English Lab 민쌤영어 · Stairs to 100</div>
   <h1>편입영어 논리완성 진단 테스트</h1>
-  <p>Diagnostic Ver.1 · 60문항 · 60분</p>
+  <p>Diagnostic Ver.1.1 · 66문항 · 70분</p>
 </header>
 
 <!-- 시작 화면 -->
@@ -97,7 +97,8 @@
     <ul>
       <li>모든 문항은 5지선다입니다. 사전이나 검색은 사용하지 않습니다.</li>
       <li>문항마다 <b>자신 있음 / 반쯤 / 찍음</b> 중 하나를 꼭 표시합니다. 찍은 문제를 정직하게 표시할수록 진단이 정확해집니다.</li>
-      <li>60분이 지나면 자동으로 제출됩니다. 시간이 부족하면 남은 문항은 비워 두어도 됩니다.</li>
+      <li>마지막 영역 8(6문항)은 상위권 변별용 심화 문항입니다. 어렵게 느껴지는 것이 정상이니 부담 없이 풀어 주세요.</li>
+      <li>70분이 지나면 자동으로 제출됩니다. 시간이 부족하면 남은 문항은 비워 두어도 됩니다.</li>
       <li>제출 후 화면에 나오는 <b>결과 코드</b>를 복사해서 민쌤에게 보내 주세요(자동 전송이 되어도 한 번 더 보내면 확실합니다).</li>
     </ul>
   </div>
@@ -109,7 +110,7 @@
   <div class="bar">
     <div class="bar-inner">
       <div class="stairs" id="stairs"></div>
-      <div class="timer" id="timer">60:00</div>
+      <div class="timer" id="timer">70:00</div>
     </div>
   </div>
   <div id="areas"></div>
@@ -138,7 +139,7 @@
    Apps Script 웹앱 URL을 넣으세요. 비워 두면 결과 코드만 표시됩니다.
    ========================================================= */
 const ENDPOINT = "";
-const LIMIT_SEC = 60 * 60;
+const LIMIT_SEC = 70 * 60;
 
 /* 영역 정의 */
 const AREAS = [
@@ -149,6 +150,7 @@ const AREAS = [
   {code:"T",  name:"영역 5. 해석", guide:"문장의 의미와 가장 가까운 것을 고르세요.", min:8},
   {code:"G",  name:"영역 6. 문법", guide:"어법상 알맞은 것, 또는 문법 단서가 알려주는 정보를 고르세요.", min:7},
   {code:"L",  name:"영역 7. 논리추론", guide:"글의 흐름상 빈칸에 가장 알맞은 것을 고르세요.", min:17},
+  {code:"X",  name:"영역 8. 상위권 심화 (재진술 · 3중 빈칸)", guide:"61~63: 문장의 핵심 정보를 가장 정확히 담은 것을 고르세요. 64~66: 세 빈칸 (i)(ii)(iii)에 순서대로 알맞은 조합을 고르세요.", min:10},
 ];
 
 /* 문항 데이터 — 정답은 포함하지 않음(강사용 별도 파일) */
@@ -220,6 +222,13 @@ const ITEMS = [
 {a:"L",en:1,s:"Far from being ______, the new regulations are so vaguely worded that even lawyers disagree about what they require.",o:["controversial", "unambiguous", "obsolete", "lenient", "comprehensive"]},
 {a:"L",en:1,s:"We usually assume that having more choices makes us happier, and up to a point it does. But when a shop offers forty kinds of jam instead of six, fewer people buy any at all, and those who do are less pleased with what they picked. Beyond a certain number, more options seem to ______.",o:["cost more", "work against us", "help us decide", "taste better", "save time"]},
 {a:"L",en:1,s:"The difference between the two candidates is one of degree rather than kind: both favor reform, but one wants ______ change while the other prefers a more ______ approach.",o:["radical – ambitious", "drastic – revolutionary", "sweeping – gradual", "minor – modest", "gradual – cautious"]},
+/* X 상위권 심화 */
+{a:"X",en:1,s:"Although the earliest agricultural societies produced far more food than foraging groups, their members were, by most measures of health, worse off than the hunter-gatherers they replaced.",ask:"Which best expresses the essential information in the sentence?",o:["Because early farmers produced more food, they were healthier than the foragers they replaced.","Early farmers grew more food than foragers but were generally less healthy than them.","Hunter-gatherers replaced farming societies because they were healthier.","Early agricultural societies produced less food but enjoyed better health than foragers.","Farmers and foragers were equally healthy despite the difference in food supply."]},
+{a:"X",en:1,s:"What distinguishes scientific claims from other kinds of assertions is not that they are certain, but that they are formulated in a way that specifies what evidence would count against them.",ask:"Which best expresses the essential information in the sentence?",o:["Scientific claims are more certain than other assertions because more evidence supports them.","Unlike other assertions, scientific claims cannot be contradicted by any evidence.","Scientific claims are distinguished mainly by the amount of evidence behind them.","Scientific claims differ from other assertions in being open to refutation by specified evidence, not in being certain.","Other assertions specify what would disprove them, whereas scientific claims do not."]},
+{a:"X",en:1,s:"The persistence of a custom long after the conditions that gave rise to it have disappeared suggests that its function has shifted from the practical to the symbolic.",ask:"Which best expresses the essential information in the sentence?",o:["When a custom outlives the circumstances that created it, it probably now serves a symbolic rather than a practical purpose.","Customs disappear as soon as the conditions that created them no longer exist.","A custom's symbolic function is what allows its original conditions to persist.","Practical customs tend to last longer than symbolic ones.","A custom persists only if the conditions that gave rise to it remain in place."]},
+{a:"X",en:1,s:"The historian's account is (i)______ in its detail yet curiously (ii)______ in its judgments: she records every skirmish and treaty but declines to say whether the war was (iii)______.",ask:"(i) – (ii) – (iii)에 들어갈 말로 알맞은 것은?",o:["cursory – reticent – justified","exhaustive – emphatic – justified","exhaustive – reticent – documented","meticulous – forthright – inevitable","exhaustive – reticent – justified"]},
+{a:"X",en:1,s:"Far from (i)______ the theory, the new data (ii)______ it, though the authors, wary of overstating their case, describe the support as merely (iii)______.",ask:"(i) – (ii) – (iii)에 들어갈 말로 알맞은 것은?",o:["confirming – undermine – tentative","undermining – bolster – conclusive","undermining – bolster – tentative","undermining – complicate – tentative","endorsing – bolster – definitive"]},
+{a:"X",en:1,s:"It is tempting to attribute the company's collapse to a single (i)______ decision, but the truth is more (ii)______: dozens of small, individually (iii)______ choices accumulated until no single one could be blamed.",ask:"(i) – (ii) – (iii)에 들어갈 말로 알맞은 것은?",o:["catastrophic – dramatic – defensible","catastrophic – diffuse – defensible","prudent – diffuse – defensible","catastrophic – diffuse – reckless","trivial – complicated – catastrophic"]},
 ];
 
 const CIRCLED = ["①","②","③","④","⑤"];
@@ -301,7 +310,7 @@ function collect(final){
     name: $("#name").value.trim(),
     date: new Date().toISOString().slice(0,10),
     elapsed_min: startAt ? Math.round((Date.now()-startAt)/60000) : 0,
-    version: "Diagnostic Ver.1",
+    version: "Diagnostic Ver.1.1",
     answers: parts.join(" "),
     final: !!final
   };
@@ -321,7 +330,7 @@ function submit(auto){
   }
   submitted = true; clearInterval(tick);
   const data = collect(true);
-  const code = `[민쌤영어 진단 Ver.1]\n이름: ${data.name}\n응시일: ${data.date}\n소요시간: ${data.elapsed_min}분\n답안: ${data.answers}`;
+  const code = `[민쌤영어 진단 Ver.1.1]\n이름: ${data.name}\n응시일: ${data.date}\n소요시간: ${data.elapsed_min}분\n답안: ${data.answers}`;
   $("#code").value = code;
   $("#exam").classList.add("hide");
   $("#result").style.display = "block";
